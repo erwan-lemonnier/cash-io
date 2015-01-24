@@ -1,0 +1,100 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import logging
+import json
+from flask import Flask, request, render_template
+
+path_here      = os.path.dirname(os.path.realpath(__file__))
+path_libs      = os.path.join(path_here, '..', 'lib')
+path_templates = os.path.join(path_here, '..', 'templates')
+path_static    = os.path.join(path_here, '..', 'static')
+
+sys.path.append(path_libs)
+
+from cashio.common import setup_logging, create_http_response, Transaction
+import cashio.api as api
+import cashio.db as db
+
+server_ip = '127.0.0.1'
+server_port = 8080
+
+log = None
+
+app = Flask(__name__,
+            template_folder=path_templates,
+            static_folder=path_static)
+
+#
+# REST api
+#
+
+@app.route("/transaction/add_many", methods=['POST'])
+def handle_add_transactions():
+    transactions = request.form['transactions'] or '[]'
+    transactions = json.loads(transactions)
+    api.add_transactions(transactions)
+    return create_http_response("ok", 200)
+
+@app.route("/transactions/get/<date>", methods=['GET'])
+def handle_get_transactions(date):
+    data = api.get_transactions(date)
+    return create_http_response(data, 200)
+
+@app.route("/category/create_or_update", methods=['POST'])
+def handle_create_or_update_category():
+    category = request.form['name']
+    matches = request.form['matches'] or '[]'
+    contains = request.form['contains'] or '[]'
+    matches = json.loads(matches)
+    contains = json.loads(contains)
+    api.create_or_update_category(category, matches, contains)
+    return create_http_response("ok", 200)
+
+#
+# HTML server
+#
+
+@app.route("/", methods=['GET'])
+def handle_root():
+    log.debug("Serving index.html in %s" % path_templates)
+    return render_template("index.html")
+
+@app.route("/db/list_transactions", methods=["GET"])
+def handle_list_transactions():
+    data = db.get_transactions(month='2014-12')
+
+    def _format_tr(array):
+        return "\n".join(["<td>%s</td>" % s for s in array])
+
+    head = _format_tr(['#', 'Date', 'Amount', 'To', 'From'])
+    body = ""
+    for t, i in zip(data, range(len(data))):
+        elems = [i, t.date, t.amount, t.target, t.owner]
+        body = body + "<tr>%s</tr>\n" % _format_tr(elems)
+    table = "<thead>%s</thead>\n<tbody>%s</tbody>" % (head, body)
+
+    log.debug("Table: %s" % table)
+
+    return render_template("list_transactions.html", table=table)
+
+#
+# Toying with jquery
+#
+
+@app.route("/learning/jquery", methods=['GET'])
+def handle_jquery():
+    return create_http_response({'id': '1234', 'content': 'hello!'}, 200)
+
+@app.route("/jquery/", methods=['GET'])
+def handle_html_jquery():
+    return render_template("jquery.html")
+
+
+
+if __name__ == '__main__':
+    log = setup_logging('www')
+    db.create_database(log)
+    log.info("Starting www server on %s:%s" % (server_ip, server_port))
+    app.run(debug=True, host=server_ip, port=server_port)

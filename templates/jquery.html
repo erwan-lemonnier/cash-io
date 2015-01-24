@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block title %}Hello jquery{% endblock %}
+{% block content %}
+        <div>
+            <p class="greeting-id">The ID is </p>
+            <p class="greeting-content">The content is </p>
+            <p class="state-log">Log:<br></p>
+        </div>
+
+See source at http://stackoverflow.com/questions/19901843/display-json-data-in-html-table
+
+        <table id="table" class="hidden">
+          <tr>
+            <th>City</th>
+            <th>Status</th>
+          </tr>
+        </table>
+
+        <div class="row">
+          <div class="col-md-6">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>To</th>
+                  <th>From</th>
+                </tr>
+              </thead>
+              <tbody class="table-content">
+              </tbody>
+            </table>
+          </div>
+        </div>
+{% endblock %}

@@ -1,0 +1,142 @@
+#!/usr/bin/env python
+
+import os
+import glob
+import re
+import requests
+import logging
+import sys
+import json
+
+PATH_LIBS=os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'lib')
+sys.path.append(PATH_LIBS)
+
+from cashio.common import setup_logging
+
+log = None
+
+www = "http://127.0.0.1:8080"
+batch_size = 2000
+
+transactions = []
+
+def send_transaction(data, flush=False):
+    global transactions
+    if data:
+        transactions.append(data)
+    if flush or len(transactions) >= batch_size:
+        log.debug("Sending %s transactions" % len(transactions))
+        r = requests.post("%s/transaction/add_many" % www, data={'transactions': json.dumps(transactions)})
+        if r.status_code != '200':
+            r.raise_for_status()
+        transactions = []
+
+def normalize_weird_chars(s):
+    s = s.replace('\xc5', 'A')
+    s = s.replace('\xc4', 'A')
+    s = s.replace('\xd6', 'O')
+    s = s.replace('\xe4', 'a')
+    s = s.replace('\xe5', 'a')
+    s = s.replace('\xe9', 'e')
+    s = s.replace('\xf6', 'o')
+    return s
+
+def normalize_target(s):
+    if '/' in s:
+        s = s.split('/')[0]
+    s = s.strip()
+    s = s.lower()
+    return s
+
+def normalize_amount(s):
+    return s.replace('.', '').replace(',', '.')
+
+def load_accounts(path):
+    """Load all bank accounts from file"""
+
+    for account_path in glob.glob("%s/*.txt" % path):
+        log.info("Loading account %s" % os.path.split(account_path)[1])
+
+        with open(account_path) as fh:
+            for l in fh:
+                l = l.strip()
+
+                l = normalize_weird_chars(l)
+
+                if l.startswith('#'):
+                    if '@owner' in l:
+                        owner = l.split()[2]
+                    continue
+
+                if l == '':
+                    continue
+
+                if not owner:
+                    raise Exception("First line of account file %s should have set an owner" % account_path)
+
+                # parse account line
+                m = re.match('^\s*(\d{4}-\d\d-\d\d)\s+(\d{4}-\d\d-\d\d)\s+(\d{10}[S]?)\s+(.*?)\s+([-\d,\.]+)\s+([-\d,\.]+)\s*$', l)
+                if m:
+                    data = {
+                        'owner': owner,
+                        'date': m.group(1),
+                        'target': normalize_target(m.group(4)),
+                        'amount': normalize_amount(m.group(5)),
+                        'raw': l,
+                    }
+                    send_transaction(data)
+                    continue
+
+                m = re.match('^\s*(\d{4}-\d\d-\d\d)\s+(.+)\s+([-\d,\.]+)\s+([-\d,\.]+)\s*$', l)
+                if m:
+                    data = {
+                        'owner': owner,
+                        'date': m.group(1),
+                        'target': normalize_target(m.group(2)),
+                        'amount': normalize_amount(m.group(3)),
+                        'raw': l,
+                    }
+                    send_transaction(data)
+                    continue
+
+                log.error("Failed to parse line [%s] in account %s" % (l, account_path))
+
+        send_transaction(None, flush=True)
+        log.info("Done parsing %s" % account_path)
+
+def load_categories(path):
+    """Load categories from files"""
+    for cat_path in glob.glob("%s/*.cat" % path):
+        cat_name = os.path.split(cat_path)[1]
+        cat_name = cat_name.split('.')[0]
+        log.info("Loading category %s" % cat_name)
+
+        matches = []
+        contains = []
+        with open(cat_path) as fh:
+            for l in fh:
+                l = l.strip()
+
+                if l.startswith('#'):
+                    continue
+
+                matches.append(l)
+
+        log.debug("Sending %s exact amd %s partial matches for category %s" %
+                  (len(matches), len(contains), cat_name))
+
+        data = {
+            'name': cat_name,
+            'matches': json.dumps(matches),
+            'contains': json.dumps(contains),
+        }
+        r = requests.post("%s/category/create_or_update" % www, data=data)
+        if r.status_code != '200':
+            r.raise_for_status()
+
+if __name__ == '__main__':
+    log = setup_logging('load_data')
+    path_etc = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'etc')
+    load_categories(os.path.join(path_etc, 'cats'))
+    load_accounts(path_etc)
+
