@@ -16,19 +16,15 @@ def add_transactions(transactions):
                         t['raw'])
         db.add_transaction(t)
 
-def create_or_update_category(category, exact_matches, partial_matches):
-    log.debug("Got category %s, with %s exact matches and %s partial ones" %
-              (category, len(exact_matches), len(partial_matches)))
+def create_or_update_category(category, cleantargets):
+    log.debug("Got category %s, with %s cleantargets" %
+              (category, len(cleantargets)))
 
     db.delete_category(category)
 
-    for s in exact_matches:
-        db.add_recipient(s, category, False)
-
-    for s in partial_matches:
-        db.add_recipient(s, category, True)
-
-    # TODO: store cats in db, and update all transactions
+    for c in cleantargets:
+        if c != '':
+            db.add_target(c, category)
 
 def get_transactions(date):
     """date is either a yyyy-mm or a yyyy. Return a list of transactions, and

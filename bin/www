@@ -44,12 +44,12 @@ def handle_get_transactions(date):
 
 @app.route("/category/create_or_update", methods=['POST'])
 def handle_create_or_update_category():
-    category = request.form['name']
-    matches = request.form['matches'] or '[]'
-    contains = request.form['contains'] or '[]'
-    matches = json.loads(matches)
-    contains = json.loads(contains)
-    api.create_or_update_category(category, matches, contains)
+    cleantargets = request.form['targets'] or '[]'
+    category = request.form['category']
+    if not category:
+        return create_http_response("Need a category", 500)
+    cleantargets = json.loads(cleantargets)
+    api.create_or_update_category(category, cleantargets)
     return create_http_response("ok", 200)
 
 #

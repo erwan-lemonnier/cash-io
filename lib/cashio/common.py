@@ -39,13 +39,13 @@ def create_http_response(data, status_code=200, headers=None, redirect_url=None)
 
 class Transaction():
 
-    def __init__(self, date, amount, target, owner, raw, recipient=None):
+    def __init__(self, date, amount, target, owner, raw, category=None):
         self.date = date
         self.amount = float(amount)
         self.target = target
         self.owner = owner
         self.raw = raw
-        self.recipient = recipient
+        self.category = category
 
     def to_json(self):
         return {
@@ -54,5 +54,5 @@ class Transaction():
             'target': self.target,
             'owner': self.owner,
             'raw': self.raw,
-            'recipient': self.recipient,
+            'category': self.category,
         }

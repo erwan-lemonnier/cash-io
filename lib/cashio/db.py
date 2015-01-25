@@ -7,21 +7,29 @@ log = None
 
 schema = [
 """
-CREATE TABLE  transactions (
-    rawdata   CHAR(200) PRIMARY KEY,
-    owner     CHAR(20) NOT NULL,
-    date      DATE NOT NULL,
-    amount    NUMBER NOT NULL,
-    target    CHAR(50) NOT NULL,
-    recipient INTEGER NULL
+CREATE TABLE     transactions (
+    rawdata      CHAR(200) PRIMARY KEY,
+    owner        CHAR(20) NOT NULL,
+    date         DATE NOT NULL,
+    amount       NUMBER NOT NULL,
+    target       CHAR(50) NOT NULL,
+    cleantarget  CHAR(50) NOT NULL
 )""",
 """
-CREATE TABLE  recipients (
-    name      CHAR(50) PRIMARY KEY,
-    regexp    BOOLEAN,
-    category  CHAR(50) NOT NULL
-)"""]
+CREATE TABLE     categories (
+    cleantarget  CHAR(50) PRIMARY KEY,
+    category     CHAR(50) NOT NULL
+)""",
+"""
+CREATE TABLE     target_substitution (
+    target       CHAR(50) PRIMARY KEY,
+    cleantarget  CHAR(50) NOT NULL
+)"""
+]
 
+
+class DBException(Exception):
+    pass
 
 @contextmanager
 def get_cursor(autocommit=False):
@@ -49,59 +57,51 @@ def create_database(logger):
 
 
 def add_transaction(t):
+    """Add a row in the transactions table"""
     with get_cursor(True) as c:
 
-        cnt = c.execute("SELECT COUNT(*) FROM transactions WHERE rawdata=?", (t.raw,))
+        c.execute("SELECT COUNT(*) FROM transactions WHERE rawdata=?", (t.raw, ))
         cnt, = c.fetchone()
-        cnt = int(cnt)
-        assert cnt >= 0
+        assert int(cnt) in [0, 1]
 
-        if cnt == 1:
-            #log.debug("Transaction already exists. Skipping [%s]" % raw)
-            pass
-        elif cnt > 1:
-            raise Exception("Duplicate transaction in database [%s]. Rm db and rebuild." % t.raw)
-        else:
-            # TODO: try to identify a recipient for the target string
-            #     select * from recipients where name==transaction.target
-            #     if match:
-            #         set transaction.recipient=transaction.target
-            #     for name in recipients where regexp is true:
-            #         if name in transaction.target:
-            #             set transaction.recipient=recipient.name
-            #             break
-            recipient = None
-            c.execute("INSERT INTO transactions (rawdata, owner, date, amount, target, recipient) VALUES (?, ?, ?, ?, ?, ?)",
-                      (t.raw, t.owner, t.date, t.amount, t.target, t.recipient))
+        if int(cnt) == 0:
+            # Should we substitute t.target with something more generic?
+            # is there target_substitution.contains that is in t.target? if so set t.cleantarget to it
+            # TODO: replace last t.target with t.cleantarget
+            c.execute("INSERT INTO transactions (rawdata, owner, date, amount, target, cleantarget) " \
+                      "VALUES (?, ?, ?, ?, ?, ?)",
+                      (t.raw, t.owner, t.date, t.amount, t.target, t.target))
+
+def add_target(cleantarget, category):
+    """Add a row in the categories table"""
+    with get_cursor(True) as c:
+
+        c.execute("SELECT COUNT(*), category FROM categories WHERE cleantarget=?", (cleantarget, ))
+        cnt, cat = c.fetchone()
+        assert int(cnt) in [0, 1]
+
+        if int(cnt) == 0:
+            c.execute("INSERT INTO categories (cleantarget, category) VALUES (?, ?)",
+                      (cleantarget, category))
+        elif cat != category:
+            raise DBException("cleantarget '%s' is already bound to category '%s'. cannot bind it to '%s'" %
+                              (cleantarget, cat, category))
+        # else: cat == category, so the target-category mapping already exists
 
 
-def delete_category(name):
-    # for each recipient having this category:
-    #    for each transaction having this recipient:
-    #        set transaction recipient to NULL
-    #    delete recipient
-    # commit
-    pass
-
-def add_recipient(name, category, regexp=False):
-    # add recipient entry
-    # for each transaction where recipient is null:
-    #     if (regexp and name in transaction.target) or (name == transaction.target):
-    #         set transaction.recipient to this recipient id
-    # if regexp:
-    #     for each transaction where transaction.recipient is null:
-    #         if name in transaction.target:
-    #             set transaction.recipient = recipient.name
-    # else:
-    #     for each transaction where transaction.target == name:
-    #         set transaction.recipient = recipient.name
-    pass
+def delete_category(category):
+    with get_cursor(True) as c:
+        cnt = c.execute("DELETE FROM categories WHERE category=?", (category, ))
 
 def get_transactions(month=None):
-    query = "SELECT date, amount, target, owner, rawdata, recipient FROM transactions WHERE "
+    query = "SELECT t.date, t.amount, t.target, t.owner, t.rawdata, c.category " \
+            "FROM transactions t " \
+            "LEFT JOIN categories c " \
+            "WHERE t.cleantarget=c.cleantarget AND "
+
     match = None
     if month:
-        query = query + "date LIKE ? ORDER BY date DESC"
+        query = query + "t.date LIKE ? ORDER BY date DESC"
         match = month + "-%"
     else:
         raise ValueError("Not enough arguments to build query")
