@@ -21,7 +21,7 @@ $(document).ready(function() {
             if(len > 0){
                 for(var i=0;i<len;i++){
                     t = transactions[i]
-                    txt += "<tr><td>"+i+"</td><td>"+t.date+"</td><td>"+t.amount+"</td><td>"+t.target+"</td><td>"+t.owner+"</td></tr>";
+                    txt += "<tr><td>"+i+"</td><td>"+t.date+"</td><td>"+t.amount+"</td><td>"+t.target+"</td><td>"+t.owner+"</td><td>"+t.category+"</td></tr>";
                 }
             }
             if(txt != ""){

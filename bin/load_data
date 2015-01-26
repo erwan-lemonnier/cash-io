@@ -111,8 +111,7 @@ def load_categories(path):
         cat_name = cat_name.split('.')[0]
         log.info("Loading category %s" % cat_name)
 
-        matches = []
-        contains = []
+        targets = []
         with open(cat_path) as fh:
             for l in fh:
                 l = l.strip()
@@ -120,15 +119,14 @@ def load_categories(path):
                 if l.startswith('#'):
                     continue
 
-                matches.append(l)
+                targets.append(l)
 
-        log.debug("Sending %s exact amd %s partial matches for category %s" %
-                  (len(matches), len(contains), cat_name))
+        log.debug("Sending %s targets mapping to category %s" %
+                  (len(targets), cat_name))
 
         data = {
-            'name': cat_name,
-            'matches': json.dumps(matches),
-            'contains': json.dumps(contains),
+            'category': cat_name,
+            'targets': json.dumps(targets),
         }
         r = requests.post("%s/category/create_or_update" % www, data=data)
         if r.status_code != '200':
