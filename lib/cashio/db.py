@@ -5,6 +5,9 @@ from cashio.common import Transaction
 
 log = None
 
+db_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'db')
+db_path = os.path.join(db_dir, 'cashio.db')
+
 schema = [
 """
 CREATE TABLE  transactions (
@@ -25,8 +28,7 @@ CREATE TABLE  recipients (
 
 @contextmanager
 def get_cursor(autocommit=False):
-    path_db = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', 'db', 'cashio.db')
-    with sqlite3.connect(path_db) as conn:
+    with sqlite3.connect(db_path) as conn:
         yield conn.cursor()
         if autocommit:
             conn.commit()
@@ -35,6 +37,9 @@ def create_database(logger):
     """Create cashio database, with initial sql schema"""
     global log
     log = logger
+
+    if not os.path.exists(db_dir):
+        os.mkdir(db_dir)
 
     with get_cursor(True) as c:
 
