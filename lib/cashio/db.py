@@ -102,7 +102,7 @@ def get_transactions(month=None):
     query = "SELECT t.date, t.amount, t.target, t.owner, t.rawdata, c.category " \
             "FROM transactions t " \
             "LEFT JOIN categories c " \
-            "WHERE t.cleantarget=c.cleantarget AND "
+            "ON t.cleantarget=c.cleantarget WHERE "
 
     match = None
     if month:
@@ -111,6 +111,7 @@ def get_transactions(month=None):
     else:
         raise ValueError("Not enough arguments to build query")
 
+    log.debug("Getting transactions for [%s] [%s]" % (query, match))
     transactions = []
     with get_cursor(True) as c:
         res = c.execute(query, (match, ))
