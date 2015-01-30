@@ -1,7 +1,7 @@
 $(document).ready(function() {
     $.ajax({
         type: 'GET',
-        url: 'http://127.0.0.1:8080/transactions/get/2014-08'
+        url: 'http://127.0.0.1:8080/api/v0/transactions/get/2014-08'
     }).then(function(data) {
         $('.state-log').append('started<br>')
         $('.state-log').append('got '+data.transactions.length+' rows<br>')

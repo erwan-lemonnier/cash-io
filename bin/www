@@ -30,19 +30,19 @@ app = Flask(__name__,
 # REST api
 #
 
-@app.route("/transaction/add_many", methods=['POST'])
+@app.route("/api/v0/transaction/add_many", methods=['POST'])
 def handle_add_transactions():
     transactions = request.form['transactions'] or '[]'
     transactions = json.loads(transactions)
     api.add_transactions(transactions)
     return create_http_response("ok", 200)
 
-@app.route("/transactions/get/<date>", methods=['GET'])
+@app.route("/api/v0/transactions/get/<date>", methods=['GET'])
 def handle_get_transactions(date):
     data = api.get_transactions(date)
     return create_http_response(data, 200)
 
-@app.route("/category/create_or_update", methods=['POST'])
+@app.route("/api/v0/category/create_or_update", methods=['POST'])
 def handle_create_or_update_category():
     cleantargets = request.form['targets'] or '[]'
     category = request.form['category']
@@ -52,7 +52,7 @@ def handle_create_or_update_category():
     api.create_or_update_category(category, cleantargets)
     return create_http_response("ok", 200)
 
-@app.route("/transactions/get_years", methods=['GET'])
+@app.route("/api/v0/transactions/get_years", methods=['GET'])
 def handle_get_years():
     """Return a list of all years for which there are transactions"""
     data = api.get_years()
