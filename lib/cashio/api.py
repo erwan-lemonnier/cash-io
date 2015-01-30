@@ -48,3 +48,7 @@ def get_transactions(date):
         'total_earned': total_earned,
         'total': total,
     }
+
+def get_years():
+    years = db.get_years()
+    return {'years': years}

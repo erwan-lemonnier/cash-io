@@ -119,3 +119,12 @@ def get_transactions(month=None):
             transactions.append(Transaction(r[0], r[1], r[2], r[3], r[4], r[5]))
 
     return transactions
+
+def get_years():
+    years = []
+    query = "SELECT DISTINCT SUBSTR(date, 1, 4) FROM transactions"
+    with get_cursor(False) as c:
+        res = c.execute(query)
+        for r in c.fetchall():
+            years.append(r[0])
+    return years

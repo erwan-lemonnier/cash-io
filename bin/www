@@ -52,6 +52,12 @@ def handle_create_or_update_category():
     api.create_or_update_category(category, cleantargets)
     return create_http_response("ok", 200)
 
+@app.route("/transactions/get_years", methods=['GET'])
+def handle_get_years():
+    """Return a list of all years for which there are transactions"""
+    data = api.get_years()
+    return create_http_response(data, 200)
+
 #
 # HTML server
 #
