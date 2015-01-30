@@ -4,6 +4,7 @@ import os
 import sys
 import logging
 import json
+import re
 from flask import Flask, request, render_template
 
 path_here      = os.path.dirname(os.path.realpath(__file__))
@@ -16,6 +17,8 @@ sys.path.append(path_libs)
 from cashio.common import setup_logging, create_http_response, Transaction
 import cashio.api as api
 import cashio.db as db
+from cashio.common import Transaction
+
 
 server_ip = '127.0.0.1'
 server_port = 8080
@@ -34,29 +37,80 @@ app = Flask(__name__,
 def handle_add_transactions():
     transactions = request.form['transactions'] or '[]'
     transactions = json.loads(transactions)
-    api.add_transactions(transactions)
+
+    log.debug("Got %s transactions" % len(transactions))
+    log.debug("First one is: %s" % transactions[0])
+    for t in transactions:
+        t = Transaction(t['date'],
+                        t['amount'],
+                        t['target'],
+                        t['owner'],
+                        t['raw'])
+        db.add_transaction(t)
+
     return create_http_response("ok", 200)
 
 @app.route("/api/v0/transactions/get/<date>", methods=['GET'])
 def handle_get_transactions(date):
-    data = api.get_transactions(date)
+    """Return a list of all transactions under a given month. 'date' is either
+    a yyyy-mm or a yyyy. Return a list of transactions, and sums of amounts
+    spent, earned and total"""
+    transactions = []
+    total_earned, total_spent, total = 0, 0, 0
+    if re.match("^\d\d\d\d-\d\d$", date):
+        for t in db.get_transactions(month=date):
+            transactions.append(t.to_json())
+            total = total + t.amount
+            if t.amount > 0:
+                total_earned = total_earned + t.amount
+            else:
+                total_spent = total_spent + t.amount
+    else:
+        raise ValueError("Date format not supported: %s" % date)
+
+    data = {
+        'transactions': transactions,
+        'total_spent': total_spent,
+        'total_earned': total_earned,
+        'total': total,
+    }
+
     return create_http_response(data, 200)
 
 @app.route("/api/v0/category/create_or_update", methods=['POST'])
 def handle_create_or_update_category():
+    """Insert in database a list of cleantargets mapping to the same category.
+    This resets the category, deleting all previous mappings for that category.
+    Used for seeding data.
+    POST data:
+    {
+        'targets': [<list of cleantargets as json>],
+        'category': 'category-string',
+    }
+    """
     cleantargets = request.form['targets'] or '[]'
     category = request.form['category']
+
     if not category:
         return create_http_response("Need a category", 500)
+
     cleantargets = json.loads(cleantargets)
-    api.create_or_update_category(category, cleantargets)
+
+    log.debug("Got category %s, with %s cleantargets" %
+              (category, len(cleantargets)))
+
+    db.delete_category(category)
+    for c in cleantargets:
+        if c != '':
+            db.add_target(c, category)
+
     return create_http_response("ok", 200)
 
 @app.route("/api/v0/transactions/get_years", methods=['GET'])
 def handle_get_years():
     """Return a list of all years for which there are transactions"""
-    data = api.get_years()
-    return create_http_response(data, 200)
+    years = db.get_years()
+    return create_http_response({'years': years}, 200)
 
 #
 # HTML server
