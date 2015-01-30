@@ -61,23 +61,9 @@ def handle_root():
     log.debug("Serving index.html in %s" % path_templates)
     return render_template("index.html")
 
-@app.route("/db/list_transactions", methods=["GET"])
-def handle_list_transactions():
-    data = db.get_transactions(month='2014-12')
-
-    def _format_tr(array):
-        return "\n".join(["<td>%s</td>" % s for s in array])
-
-    head = _format_tr(['#', 'Date', 'Amount', 'To', 'From'])
-    body = ""
-    for t, i in zip(data, range(len(data))):
-        elems = [i, t.date, t.amount, t.target, t.owner]
-        body = body + "<tr>%s</tr>\n" % _format_tr(elems)
-    table = "<thead>%s</thead>\n<tbody>%s</tbody>" % (head, body)
-
-    log.debug("Table: %s" % table)
-
-    return render_template("list_transactions.html", table=table)
+@app.route("/monthly_transactions", methods=["GET"])
+def handle_monthly_transactions():
+    return render_template("monthly_transactions.html")
 
 #
 # Toying with jquery

@@ -4,5 +4,7 @@ $(document).ready(function() {
     }).then(function(data) {
        $('.greeting-id').append(data.id);
        $('.greeting-content').append(data.content);
+       $('.state-log').append('started<br>')
+       $('.state-log').append('got '+data+'<br>')
     });
 });
