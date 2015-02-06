@@ -29,7 +29,7 @@ flask, javascript, ajax, jquery, etc.)
 git clone git@github.com:erwan-lemonnier/cash-io.git
 
 # Setup dependencies
-sudo pip install requests flask
+sudo pip install requests flask click
 
 # Run the cash-io web service:
 cd cash-io; ./bin/www

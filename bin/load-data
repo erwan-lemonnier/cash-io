@@ -7,6 +7,7 @@ import requests
 import logging
 import sys
 import json
+import click
 
 PATH_LIBS=os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'lib')
 sys.path.append(PATH_LIBS)
@@ -17,6 +18,8 @@ log = None
 
 www = "http://127.0.0.1:8080/api/v0"
 batch_size = 2000
+
+path_etc = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'etc')
 
 transactions = []
 
@@ -132,9 +135,28 @@ def load_categories(path):
         if r.status_code != '200':
             r.raise_for_status()
 
+
+
+@click.command()
+@click.option('--path', default=path_etc, help='Path where to find accounts or categories. Defaults to \'%s\'.' % path_etc)
+@click.option('--accounts', is_flag=True, default=False, help='Load bank ledgers from files.')
+@click.option('--categories', is_flag=True, default=False, help='Load categories from files.')
+def load_data(path, accounts, categories):
+    """Load bank accounts and/or categories from files and into cash-io."""
+    if not categories and not accounts:
+        log.info("Nothing to do. Please specify --accounts or --categories.")
+        sys.exit(0)
+
+    if categories:
+        path_cats = os.path.join(path, 'cats')
+        log.info("Loading categories from %s" % path_cats)
+        load_categories(path_cats)
+
+    if accounts:
+        log.info("Loading accounts from %s" % path)
+        load_accounts(path)
+
+
 if __name__ == '__main__':
     log = setup_logging('load_data')
-    path_etc = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'etc')
-    load_categories(os.path.join(path_etc, 'cats'))
-    load_accounts(path_etc)
-
+    load_data()
