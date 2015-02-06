@@ -15,7 +15,7 @@ from cashio.common import setup_logging
 
 log = None
 
-www = "http://127.0.0.1:8080"
+www = "http://127.0.0.1:8080/api/v0"
 batch_size = 2000
 
 transactions = []

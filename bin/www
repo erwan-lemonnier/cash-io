@@ -15,7 +15,6 @@ path_static    = os.path.join(path_here, '..', 'static')
 sys.path.append(path_libs)
 
 from cashio.common import setup_logging, create_http_response, Transaction
-import cashio.api as api
 import cashio.db as db
 from cashio.common import Transaction
 
