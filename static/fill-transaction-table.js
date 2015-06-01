@@ -7,7 +7,7 @@ function load_monthly_transactions(year, month) {
             $('.state-log').append('started<br>')
             $('.state-log').append('got '+data.transactions.length+' rows<br>')
             if(data){
-                transactions = data.transactions;
+                var transactions = data.transactions;
                 var len = transactions.length;
                 var txt = "";
                 if(len > 0){
@@ -19,6 +19,32 @@ function load_monthly_transactions(year, month) {
                 if(txt != ""){
                     $('.table-content').empty().append(txt);
                 }
+
+                // Build input data for the polar area chart
+                var sums = data.categories;
+                var chartdata = new Array();
+                $('.table-content').empty();
+                for (var cat in sums) {
+                    amount = sums[cat]
+                    $('.table-content').append('checking ' + cat + ' ' + amount + '<br>');
+                    if (amount <= 0) {
+                        var d = {
+                            value: Math.abs(Math.round(amount)),
+                            label: cat,
+                            color:"#F7464A",
+                            highlight:"#F7464A",
+                        }
+                        chartdata.push(d)
+                    }
+                }
+
+                var output = '';
+                for (var property in chartdata) {
+                    output += chartdata[property]['label'] + ': ' + chartdata[property]['value'] +'; ';
+                }
+                $('.table-content').empty().append('chartdata: ' + output);
+                var ctx = $("#monthly_transactions").get(0).getContext("2d");
+                var chart = new Chart(ctx).PolarArea(chartdata, {animationSteps : 5});
             }
         });
     });

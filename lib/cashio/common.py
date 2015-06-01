@@ -46,6 +46,10 @@ class Transaction():
         self.owner = owner
         self.raw = raw
         self.category = category
+        if self.category:
+            self.category = category.strip()
+        else:
+            self.category = 'null'
 
     def to_json(self):
         return {

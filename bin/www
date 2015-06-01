@@ -57,6 +57,7 @@ def handle_get_transactions(date):
     spent, earned and total"""
     transactions = []
     total_earned, total_spent, total = 0, 0, 0
+    sum_by_category = {}
     if re.match("^\d\d\d\d-\d\d$", date):
         for t in db.get_transactions(month=date):
             transactions.append(t.to_json())
@@ -65,6 +66,11 @@ def handle_get_transactions(date):
                 total_earned = total_earned + t.amount
             else:
                 total_spent = total_spent + t.amount
+
+            if t.category in sum_by_category:
+                sum_by_category[t.category] = sum_by_category[t.category] + t.amount
+            else:
+                sum_by_category[t.category] = t.amount
     else:
         raise ValueError("Date format not supported: %s" % date)
 
@@ -73,8 +79,10 @@ def handle_get_transactions(date):
         'total_spent': total_spent,
         'total_earned': total_earned,
         'total': total,
+        'categories': sum_by_category,
     }
 
+    log.debug("Returning aggregated categories: %s" % sum_by_category)
     return create_http_response(data, 200)
 
 @app.route("/api/v0/category/create_or_update", methods=['POST'])
