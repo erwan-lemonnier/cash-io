@@ -62,6 +62,10 @@ def handle_get_transactions(date):
         for t in db.get_transactions(month=date):
             transactions.append(t.to_json())
             total = total + t.amount
+            # TODO: put that magic ignore string in a config file
+            if t.category == '00-IGNORE':
+                continue
+
             if t.amount > 0:
                 total_earned = total_earned + t.amount
             else:
