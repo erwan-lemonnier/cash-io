@@ -14,9 +14,10 @@ path_static    = os.path.join(path_here, '..', 'static')
 
 sys.path.append(path_libs)
 
-from cashio.common import setup_logging, create_http_response, Transaction
-import cashio.db as db
+from cashio.common import setup_logging, create_http_response
 from cashio.common import Transaction
+import cashio.db as db
+
 
 
 server_ip = '127.0.0.1'
@@ -122,7 +123,16 @@ def handle_root():
 
 @app.route("/monthly_transactions", methods=["GET"])
 def handle_monthly_transactions():
-    return render_template("monthly_transactions.html")
+    years = db.get_years()
+    month_to_digit = {
+        'Jan':  '01', 'Feb':  '02', 'Mars': '03', 'April': '04',
+        'Mai':  '05', 'June': '06', 'July': '07', 'Aug':   '08',
+        'Sept': '09', 'Oct':  '10', 'Nov':  '11', 'Dec':   '12',
+        }
+    return render_template("monthly_transactions.html",
+                           transaction_years=years,
+                           month_to_digit=month_to_digit)
+
 
 #
 # Toying with jquery
