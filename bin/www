@@ -80,9 +80,9 @@ def handle_get_transactions(date):
 
     data = {
         'transactions': transactions,
-        'total_spent': total_spent,
-        'total_earned': total_earned,
-        'total': total,
+        'total_spent': abs(total_spent),
+        'total_earned': abs(total_earned),
+        'total': abs(total),
         'categories': sum_by_category,
     }
 

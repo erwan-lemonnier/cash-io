@@ -42,47 +42,21 @@ function show_sum_by_category_chart(context, sum_by_category) {
     new Chart(context).Bar(chartdata, {animationSteps: 1});
 }
 
-function show_balance_chart(context, total_earned, total_spent) {
-    // Display a barchart showing the earned vs. spent balance
-   balancedata = {
-       labels: ['earned/spent'],
-        datasets: [
-            {
-                label: "Balance",
-                fillColor: "#46BFBD",
-                strokeColor: "#46BFBD",
-                highlightFill: "#5AD3D1",
-                highlightStroke: "#5AD3D1",
-                data: [Math.abs(total_earned)],
-            },
-            {
-                label: "Balance",
-                fillColor: "#F7464A",
-                strokeColor: "#F7464A",
-                highlightFill: "#FF5A5E",
-                highlightStroke: "#FF5A5E",
-                data: [Math.abs(total_spent)],
-            }
-       ],
-   };
-//     balancedata = [
-//         {
-//             value: Math.abs(total_earned),
-//             color: "#46BFBD",
-//             highlight: "#5AD3D1",
-//             label: "Green",
-//         },
-//         {
-//             value: Math.abs(total_spent),
-//             color:"#F7464A",
-//             highlight: "#FF5A5E",
-//             label: "Red",
-//         },
-//     ];
+function show_balance_chart(elem_name, total_earned, total_spent) {
 
-    new Chart(context).Bar(balancedata, {animationSteps: 1});
-    //new Chart(context).Doughnut(balancedata, {animationSteps: 1});
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Type');
+    data.addColumn('number', 'Amount');
+    data.addRows([
+        ['Earned', total_earned],
+        ['Spent', total_spent],
+    ]);
+
+    var options = {'title':'Earned/Spent'};
+    var chart = new google.visualization.PieChart(document.getElementById(elem_name));
+    chart.draw(data, options);
 }
+
 
 function fill_transaction_table(table, transactions) {
     var len = transactions.length;
@@ -99,6 +73,7 @@ function fill_transaction_table(table, transactions) {
 }
 
 function load_monthly_transactions(year, month) {
+
     $(document).ready(function() {
         $.ajax({
             type: 'GET',
@@ -112,8 +87,7 @@ function load_monthly_transactions(year, month) {
                 var ctx1 = $("#spendings").get(0).getContext("2d");
                 show_sum_by_category_chart(ctx1, data.categories);
 
-                var ctx2 = $("#balance").get(0).getContext("2d");
-                show_balance_chart(ctx2, data.total_earned, data.total_spent);
+                show_balance_chart('chart_balance', data.total_earned, data.total_spent);
             }
         });
     });
