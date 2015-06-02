@@ -1,3 +1,7 @@
+function set_title(context, title) {
+    context.empty().append("<h1>"+title+"</h1>");
+}
+
 function show_sum_by_category_chart(context, sum_by_category) {
     // Build a linechart showing amount spent for each category
     var mylabels = [];
@@ -86,7 +90,7 @@ function fill_transaction_table(table, transactions) {
     if(len > 0){
         for(var i=0;i<len;i++){
             t = transactions[i]
-            txt += "<tr><td>"+i+"</td><td>"+t.date+"</td><td>"+t.amount+"</td><td>"+t.target+"</td><td>"+t.owner+"</td><td>"+t.category+"</td></tr>";
+            txt += "<tr><td>"+t.date+"</td><td>"+t.amount+"</td><td>"+t.target+"</td><td>"+t.owner+"</td><td>"+t.category+"</td></tr>";
         }
     }
     if(txt != ""){
@@ -94,13 +98,13 @@ function fill_transaction_table(table, transactions) {
     }
 }
 
-
 function load_monthly_transactions(year, month) {
     $(document).ready(function() {
         $.ajax({
             type: 'GET',
             url: 'http://127.0.0.1:8080/api/v0/transactions/get/' + year + '-' + month
         }).then(function(data) {
+            set_title($('.page-header'), "Transactions for " + year + "-" + month);
             if(data){
                 // Fill the table with transactions
                 fill_transaction_table($('.table-content'), data.transactions);
