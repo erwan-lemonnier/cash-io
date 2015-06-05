@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block title %}Choose a year{% endblock %}
+{% block content %}
+        <script>
+        // Google chart needs to be loaded before the call to jQuery.ready()
+        google.load('visualization', '1.0', {'packages':['corechart']});
+        google.setOnLoadCallback(function() {
+           var script = document.createElement("script");
+           script.setAttribute("type", "text/javascript");
+           script.setAttribute("src", "/static/fill-transaction-table.js");
+           document.getElementsByTagName("html")[0].appendChild(script);
+        });
+        </script>
+        <h4>
+          <p>
+            <div class="btn-group" role="group">
+            {% for year in transaction_years %}
+              <button type="button" class="btn btn-default">{{year}}</button>
+            {% endfor %}
+            </div>
+          </p>
+        </h4>
+
+        <canvas id="spendings" width="700" height="400"></canvas>
+        <div id="chart_balance" width="300" height="300"></div>
+
+        </div>
+{% endblock %}

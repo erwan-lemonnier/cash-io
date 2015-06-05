@@ -152,6 +152,12 @@ def handle_monthly_transactions():
                            transaction_years=years,
                            month_to_digit=month_to_digit)
 
+@app.route("/yearly_transactions", methods=["GET"])
+def handle_yearly_transactions():
+    years = db.get_years()
+    return render_template("yearly_transactions.html",
+                           transaction_years=years)
+
 
 #
 # Toying with jquery
