@@ -55,28 +55,35 @@ def handle_get_transactions(date):
     """Return a list of all transactions under a given month. 'date' is either
     a yyyy-mm or a yyyy. Return a list of transactions, and sums of amounts
     spent, earned and total"""
+
+    month, year = None, None
+    if re.match("^\d\d\d\d-\d\d$", date):
+        year, month = date.split('-')
+    elif re.match("^\d\d\d\d", date):
+        year = date
+    else:
+        # TODO: return error code wrong date format
+        raise ValueError("Date format not supported: %s" % date)
+
     transactions = []
     total_earned, total_spent, total = 0, 0, 0
     sum_by_category = {}
-    if re.match("^\d\d\d\d-\d\d$", date):
-        for t in db.get_transactions(month=date):
-            transactions.append(t.to_json())
-            total = total + t.amount
-            # TODO: put that magic ignore string in a config file
-            if t.category == '00-IGNORE':
-                continue
+    for t in db.get_transactions(year, month):
+        transactions.append(t.to_json())
+        total = total + t.amount
+        # TODO: put that magic ignore string in a config file
+        if t.category == '00-IGNORE':
+            continue
 
-            if t.amount > 0:
-                total_earned = total_earned + t.amount
-            else:
-                total_spent = total_spent + t.amount
+        if t.amount > 0:
+            total_earned = total_earned + t.amount
+        else:
+            total_spent = total_spent + t.amount
 
-            if t.category in sum_by_category:
-                sum_by_category[t.category] = sum_by_category[t.category] + t.amount
-            else:
-                sum_by_category[t.category] = t.amount
-    else:
-        raise ValueError("Date format not supported: %s" % date)
+        if t.category in sum_by_category:
+            sum_by_category[t.category] = sum_by_category[t.category] + t.amount
+        else:
+            sum_by_category[t.category] = t.amount
 
     data = {
         'transactions': transactions,

@@ -98,18 +98,22 @@ def delete_category(category):
     with get_cursor(True) as c:
         cnt = c.execute("DELETE FROM categories WHERE category=?", (category, ))
 
-def get_transactions(month=None):
+def get_transactions(year, month=None):
     query = "SELECT t.date, t.amount, t.target, t.owner, t.rawdata, c.category " \
             "FROM transactions t " \
             "LEFT JOIN categories c " \
-            "ON t.cleantarget=c.cleantarget WHERE "
-
+            "ON t.cleantarget=c.cleantarget WHERE " \
+            "t.date LIKE ? ORDER BY date DESC"
     match = None
-    if month:
-        query = query + "t.date LIKE ? ORDER BY date DESC"
-        match = month + "-%"
-    else:
+
+    if not year:
         raise ValueError("Not enough arguments to build query")
+    elif not month:
+        # Select all transactions for given year
+        match = "{0}-%".format(year)
+    else:
+        # Select all transations for year and month
+        match = "{0}-{1}-%".format(year, month)
 
     log.debug("Getting transactions for [%s] [%s]" % (query, match))
     transactions = []
