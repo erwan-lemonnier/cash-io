@@ -140,7 +140,7 @@ def handle_root():
     log.debug("Serving index.html in %s" % path_templates)
     return render_template("index.html")
 
-@app.route("/monthly_transactions", methods=["GET"])
+@app.route("/monthly_report", methods=["GET"])
 def handle_monthly_transactions():
     years = db.get_years()
     month_to_digit = {
@@ -148,15 +148,15 @@ def handle_monthly_transactions():
         'Mai':  '05', 'June': '06', 'July': '07', 'Aug':   '08',
         'Sept': '09', 'Oct':  '10', 'Nov':  '11', 'Dec':   '12',
         }
-    return render_template("monthly_transactions.html",
-                           transaction_years=years,
+    return render_template("monthly_report.html",
+                           years=years,
                            month_to_digit=month_to_digit)
 
-@app.route("/yearly_transactions", methods=["GET"])
+@app.route("/yearly_report", methods=["GET"])
 def handle_yearly_transactions():
     years = db.get_years()
-    return render_template("yearly_transactions.html",
-                           transaction_years=years)
+    return render_template("yearly_report.html",
+                           years=years)
 
 
 #

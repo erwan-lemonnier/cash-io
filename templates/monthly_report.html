@@ -7,13 +7,13 @@
         google.setOnLoadCallback(function() {
            var script = document.createElement("script");
            script.setAttribute("type", "text/javascript");
-           script.setAttribute("src", "/static/fill-transaction-table.js");
+           script.setAttribute("src", "/static/cashio.js");
            document.getElementsByTagName("html")[0].appendChild(script);
         });
         </script>
         <h4>
           <p>
-            {% for year in transaction_years %}
+            {% for year in years %}
               <button type="button" class="btn btn-sm btn-default">
                 <div class="dropdown">
                   <a id="dropdownMenu1" href="#" data-toggle="dropdown" role="button">{{year}} <span class="caret"></a>
