@@ -90,6 +90,7 @@ def handle_get_transactions(date):
         'total_spent': abs(total_spent),
         'total_earned': abs(total_earned),
         'total': abs(total),
+        'year': year,
         'categories': sum_by_category,
     }
 

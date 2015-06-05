@@ -150,19 +150,25 @@ function load_many_years_transactions(years) {
 
     var calls = [];
 
+    yearly_data = [];
     for(var i in years) {
-        if(year != "") {
-            calls.push($.ajax({
+        if(years[i] != "") {
+            var call = $.ajax({
                 type: 'GET',
-                url: 'http://127.0.0.1:8080/api/v0/transactions/get/' + years[i]
-            }));
+                url: 'http://127.0.0.1:8080/api/v0/transactions/get/' + years[i],
+            }).then(function(data) {
+                if(data){
+                    yearly_data.push(data);
+                }
+            });
+
+            calls.push(call);
         }
     }
 
-    yearly_data = [];
-    $.when.apply($, calls).done(function(data) {
-        yearly_data.push(data);
+    $.when.apply($, calls).done(function() {
+        set_title($('.page-header'), "data: " + yearly_data);
+        d = yearly_data[0];
+        show_repartition_by_year('repartition', d.year, d.categories);
     });
-
-    show_repartition_by_year('repartition', '2015', yearly_data[0].categories);
 }
