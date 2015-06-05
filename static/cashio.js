@@ -147,4 +147,22 @@ function load_many_years_transactions(years) {
     set_title($('.page-header'), years);
     // TODO: and now, get transactions for multiple years in one shot!!
     // see http://stackoverflow.com/questions/17719344/multiple-rest-calls-best-practise
+
+    var calls = [];
+
+    for(var i in years) {
+        if(year != "") {
+            calls.push($.ajax({
+                type: 'GET',
+                url: 'http://127.0.0.1:8080/api/v0/transactions/get/' + years[i]
+            }));
+        }
+    }
+
+    yearly_data = [];
+    $.when.apply($, calls).done(function(data) {
+        yearly_data.push(data);
+    });
+
+    show_repartition_by_year('repartition', '2015', yearly_data[0].categories);
 }

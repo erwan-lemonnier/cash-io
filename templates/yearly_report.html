@@ -15,7 +15,7 @@
           <p>
             <form class="form-horizontal">
               <div class="select-years">
-                <button type="submit" onclick="list_selected_checkboxes_and_show_years(); return false;">Show</button>
+                <input type="button" class="btn btn-info" value="Show" onclick="list_selected_checkboxes_and_show_years()">
                 <div class="btn-group" data-toggle="buttons">
                   {% for year in years %}
                   <label class="btn btn-info">
