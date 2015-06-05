@@ -59,7 +59,7 @@ def handle_get_transactions(date):
     month, year = None, None
     if re.match("^\d\d\d\d-\d\d$", date):
         year, month = date.split('-')
-    elif re.match("^\d\d\d\d", date):
+    elif re.match("^\d\d\d\d$", date):
         year = date
     else:
         # TODO: return error code wrong date format
@@ -71,8 +71,8 @@ def handle_get_transactions(date):
     for t in db.get_transactions(year, month):
         transactions.append(t.to_json())
         total = total + t.amount
-        # TODO: put that magic ignore string in a config file
-        if t.category == '00-IGNORE':
+
+        if t.ignore:
             continue
 
         if t.amount > 0:

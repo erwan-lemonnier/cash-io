@@ -46,10 +46,18 @@ class Transaction():
         self.owner = owner
         self.raw = raw
         self.category = category
+        self.ignore = False
         if self.category:
             self.category = category.strip()
         else:
-            self.category = 'null'
+            self.category = 'unknown'
+
+        # Some normalization of the category name
+        self.category = self.category.replace('_', ' ').replace('-', ' ')
+
+        # Set the ignore flag
+        if 'ignore' in self.category.lower():
+            self.ignore = True
 
     def to_json(self):
         return {
