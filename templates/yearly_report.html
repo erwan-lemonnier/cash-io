@@ -13,16 +13,34 @@
         </script>
         <h4>
           <p>
-            <div class="btn-group" role="group">
-            {% for year in years %}
-              <button type="button" class="btn btn-default">{{year}}</button>
-            {% endfor %}
-            </div>
+            <form class="form-horizontal">
+              <div class="select-years">
+                <button type="submit" onclick="list_selected_checkboxes_and_show_years(); return false;">Show</button>
+                <div class="btn-group" data-toggle="buttons">
+                  {% for year in years %}
+                  <label class="btn btn-info">
+                    <input id="checkbox-{{year}}" type="checkbox" value="{{year}}"> {{year}}
+                  </label>
+                  {% endfor %}
+                </div>
+              </div>
+            </form>
           </p>
         </h4>
 
-        <canvas id="spendings" width="700" height="400"></canvas>
-        <div id="chart_balance" width="300" height="300"></div>
+        <script>
+        function list_selected_checkboxes_and_show_years() {
+          years = [];
+          {% for year in years %}
+          if (document.getElementById('checkbox-{{year}}').checked) {
+            years.push("{{year}}");
+          }
+          {% endfor %}
+          load_many_years_transactions(years);
+        }
+        </script>
 
-        </div>
+        <div id="repartition" width="700px" height="1000px"></div><br>
+        <canvas id="spendings" width="700px" height="400px"></canvas><br>
+        <div id="chart_balance" width="300px" height="300px"></div><br>
 {% endblock %}
