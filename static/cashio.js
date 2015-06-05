@@ -72,15 +72,60 @@ function fill_transaction_table(table, transactions) {
     }
 }
 
-function show_repartition_by_year(elem_name, year, sum_by_category) {
-    titles = ["Year"]
-    values = [year]
-    for(var cat in sum_by_category) {
-        titles.push(cat);
-        values.push(sum_by_category[cat]);
+function show_repartition_by_year(elem_name, sum_by_category_by_year) {
+
+    var datatable = [];
+
+    // We need to convert a hash of hash table into a matrix...
+
+    // List all categories across multiple sum_by_category/year
+    // all_categories is a hash of category to unique index
+    category_names = [];
+    category_to_index = {};
+    for(var year in sum_by_category_by_year) {
+        sum_by_category = sum_by_category_by_year[year];
+        index = 0;
+        for(var cat in sum_by_category) {
+            set_title($('.page-header'), "setting cat" + cat);
+            if (cat in category_to_index) {
+                // pass
+            } else {
+                category_to_index[cat] = index;
+                category_names.push(cat);
+                index = index + 1;
+            }
+        }
     }
 
-    var data = google.visualization.arrayToDataTable([titles, values]);
+    //set_title($('.page-header'), "categories: " + all_categories);
+
+    // Fill a default row in datatable with zeroes
+    zeroed_row = []
+    for(var j in category_to_index) {
+        zeroed_row.push(0);
+    }
+
+    // Category names
+    titles = ["Year"];
+    for (var i in category_names) {
+        titles.push(category_names[i]);
+    }
+
+    datatable = [];
+    datatable.push(titles);
+
+    // Fill datatable year by year
+    for(var year in sum_by_category_by_year) {
+        sum_by_category = sum_by_category_by_year[year];
+        year_row = [year];
+        year_row = year_row.concat(zeroed_row);
+        for(var cat in sum_by_category) {
+            i = category_to_index[cat];
+            year_row[i] = sum_by_category[cat]
+        }
+    }
+
+    var data = google.visualization.arrayToDataTable(datatable);
 
     //TODO: set colors to fix values, in same order as categories, to assign color to cats
     var options = {
@@ -131,7 +176,9 @@ function load_yearly_transactions(year) {
         }).then(function(data) {
             set_title($('.page-header'), year);
             if(data){
-                show_repartition_by_year('repartition', year, data.categories);
+                sums_by_year = {};
+                sums_by_year[year] = data.categories;
+                show_repartition_by_year('repartition', sums_by_year);
 
                 var ctx1 = $("#spendings").get(0).getContext("2d");
                 show_sum_by_category_chart(ctx1, data.categories);
@@ -143,14 +190,9 @@ function load_yearly_transactions(year) {
 }
 
 function load_many_years_transactions(years) {
-    //load_yearly_transactions(years[0]);
-    set_title($('.page-header'), years);
-    // TODO: and now, get transactions for multiple years in one shot!!
-    // see http://stackoverflow.com/questions/17719344/multiple-rest-calls-best-practise
-
     var calls = [];
 
-    yearly_data = [];
+    yearly_data = {};
     for(var i in years) {
         if(years[i] != "") {
             var call = $.ajax({
@@ -158,7 +200,7 @@ function load_many_years_transactions(years) {
                 url: 'http://127.0.0.1:8080/api/v0/transactions/get/' + years[i],
             }).then(function(data) {
                 if(data){
-                    yearly_data.push(data);
+                    yearly_data[years[i]] = data.categories;
                 }
             });
 
@@ -167,8 +209,6 @@ function load_many_years_transactions(years) {
     }
 
     $.when.apply($, calls).done(function() {
-        set_title($('.page-header'), "data: " + yearly_data);
-        d = yearly_data[0];
-        show_repartition_by_year('repartition', d.year, d.categories);
+        show_repartition_by_year('repartition', yearly_data);
     });
 }
