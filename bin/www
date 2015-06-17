@@ -132,6 +132,13 @@ def handle_get_years():
     years = db.get_years()
     return create_http_response({'years': years}, 200)
 
+@app.route("/api/v0/categories/get_names", methods=['GET'])
+def handle_get_categories_names():
+    """Return a list of all categories, by order of having most to less transactions"""
+    categories = db.get_categories_names()
+    return create_http_response({'categories': categories}, 200)
+
+
 #
 # HTML server
 #

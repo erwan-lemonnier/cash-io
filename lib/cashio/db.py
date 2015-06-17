@@ -149,3 +149,17 @@ def get_years():
         for r in c.fetchall():
             years.append(r[0])
     return years
+
+def get_categories_names():
+    """Return a list of all categories, by order of having most to less transactions"""
+    categories = []
+    query = "SELECT c.category, COUNT(t.rawdata) AS s " \
+            "FROM categories c, transactions t " \
+            "WHERE t.cleantarget=c.cleantarget " \
+            "GROUP BY c.category ORDER BY s DESC"
+    with get_cursor(False) as c:
+        res = c.execute(query)
+        for r in c.fetchall():
+            categories.append(r[0])
+    return categories
+
