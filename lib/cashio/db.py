@@ -163,3 +163,20 @@ def get_categories_names():
             categories.append(r[0])
     return categories
 
+def get_transactions_with_unknown_targets():
+    """Return a list of all transactions with unknown targets, grouped
+    by targets and ordered by decreasing date"""
+
+    query = "SELECT t.date, t.amount, t.target, t.owner, t.rawdata, t.cleantarget " \
+            "FROM transactions t " \
+            "WHERE t.cleantarget NOT IN (SELECT DISTINCT cleantarget FROM categories) " \
+            "ORDER BY DATE DESC LIMIT 50"
+
+    log.debug("Getting transactions with unknown categories")
+    transactions = []
+    with get_cursor(True) as c:
+        res = c.execute(query)
+        for r in c.fetchall():
+            transactions.append(Transaction(r[0], r[1], r[2], r[3], r[4], r[5]))
+
+    return transactions

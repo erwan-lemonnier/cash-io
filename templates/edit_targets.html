@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+{% block title %}Assign a category to unidentified targets:{% endblock %}
+{% block content %}
+        <script src="/static/cashio.js"></script>
+        <div class="row">
+          <div class="col-md-6">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>To</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>From</th>
+                </tr>
+              </thead>
+              <tbody class="table-content">
+                {% for transaction in transactions %}
+                <tr>
+                  <td>
+                    <button type="button" class="btn btn-sm btn-default">
+                      <div class="dropdown">
+                        <a id="{{transaction.htmlid}}" href="#" data-toggle="dropdown" role="button">--------<span class="caret"></a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                          <table class="table">
+                            <tbody>
+                              {% for category in categories %}
+                              <tr>
+                                <td><a onclick="assign_target_category('{{transaction.category}}', '{{category}}', '{{transaction.htmlid}}')" href="#">{{category}}</a></td>
+                              </tr>
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </ul>
+                      </div>
+                    </button>
+                  </td>
+                  <td>{{transaction.target}}</td>
+                  <td>{{transaction.date}}</td>
+                  <td>{{transaction.amount}}</td>
+                  <td>{{transaction.owner}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+{% endblock %}

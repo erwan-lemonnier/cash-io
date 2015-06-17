@@ -212,3 +212,9 @@ function load_many_years_transactions(years) {
         show_repartition_by_year('repartition', yearly_data);
     });
 }
+
+function assign_target_category(cleantarget, category, id) {
+    // TODO: resetting categories in html page fails, maybe because id field contains spaces?
+    $("."+id).empty().append(category)
+    // TODO: implement rest api call and use it
+}
