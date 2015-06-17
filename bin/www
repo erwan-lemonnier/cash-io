@@ -33,7 +33,7 @@ app = Flask(__name__,
 # REST api
 #
 
-@app.route("/api/v0/transaction/add_many", methods=['POST'])
+@app.route("/api/v0/transactions/add_many", methods=['POST'])
 def handle_add_transactions():
     transactions = request.form['transactions'] or '[]'
     transactions = json.loads(transactions)
@@ -52,9 +52,9 @@ def handle_add_transactions():
 
 @app.route("/api/v0/transactions/get/<date>", methods=['GET'])
 def handle_get_transactions(date):
-    """Return a list of all transactions under a given month. 'date' is either
-    a yyyy-mm or a yyyy. Return a list of transactions, and sums of amounts
-    spent, earned and total"""
+    """Return a list of all transactions under a given year or month. 'date' is
+    either a yyyy-mm or a yyyy. Return a list of transactions, and sums of
+    amounts spent, earned and total"""
 
     month, year = None, None
     if re.match("^\d\d\d\d-\d\d$", date):
@@ -97,7 +97,7 @@ def handle_get_transactions(date):
     log.debug("Returning aggregated categories: %s" % sum_by_category)
     return create_http_response(data, 200)
 
-@app.route("/api/v0/category/create_or_update", methods=['POST'])
+@app.route("/api/v0/categories/create_or_update", methods=['POST'])
 def handle_create_or_update_category():
     """Insert in database a list of cleantargets mapping to the same category.
     This resets the category, deleting all previous mappings for that category.
