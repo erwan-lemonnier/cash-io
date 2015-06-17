@@ -9,6 +9,15 @@ db_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '
 db_path = os.path.join(db_dir, 'cashio.db')
 
 schema = [
+
+# A money transaction, basically a line from the bank account ledger
+# The 'target' is the raw string identifying the transaction's recipient
+# in the ledger. 'cleantarget' is that same string if we should use the
+# generic category for that target, or a string of the format
+# '<dateYYYYMMDD>:<target>' if we should make an exception and use an other
+# category than the default one.
+# '<dateYYMMDD>-<target>' should then have a mapping to a category in
+# the categories table.
 """
 CREATE TABLE     transactions (
     rawdata      CHAR(200) PRIMARY KEY,
@@ -18,11 +27,19 @@ CREATE TABLE     transactions (
     target       CHAR(50) NOT NULL,
     cleantarget  CHAR(50) NOT NULL
 )""",
+
+# Map a cleantarget (such as 'apotek fen' or '20150412:apotek fen') to
+# a category (such as 'healthcare')
 """
 CREATE TABLE     categories (
     cleantarget  CHAR(50) PRIMARY KEY,
     category     CHAR(50) NOT NULL
 )""",
+
+# A mechanism not implemented yet: the idea is to allow replacing
+# mutating target names (such as 'mc donald A' and 'mc donald B')
+# with a generic target ('mc donald') to avoid having to maintain
+# multiple mappings.
 """
 CREATE TABLE     target_substitution (
     target       CHAR(50) PRIMARY KEY,
