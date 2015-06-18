@@ -1,5 +1,6 @@
 import logging
 import json
+import string
 
 logger = None
 
@@ -59,9 +60,9 @@ class Transaction():
         if 'ignore' in self.category.lower():
             self.ignore = True
 
-        # the target, normalized to serve as an html id tag
-        # TODO: replacing whitespaces is most likely not enough. Do that properly!
-        self.htmlid = self.target.replace(' ','')
+        #id = self.date + self.target
+        id = self.target
+        self.uniqueid = id.replace(' ', '_')
 
     def to_json(self):
         return {

@@ -213,8 +213,23 @@ function load_many_years_transactions(years) {
     });
 }
 
-function assign_target_category(cleantarget, category, id) {
-    // TODO: resetting categories in html page fails, maybe because id field contains spaces?
-    $("."+id).empty().append(category)
-    // TODO: implement rest api call and use it
+// Assign a given target to always be mapped to given transaction
+// If date is given, assign the target to that transaction on that date only
+function assign_target_category(cleantarget, category, id, date) {
+    if (date != '') {
+        cleantarget = date + ':' + cleantarget
+    }
+    $(document).ready(function() {
+        $.ajax({
+            type: 'POST',
+            url: 'http://127.0.0.1:8080/api/v0/categories/assign_target/' + cleantarget + '/' + category
+        }).then(function(data) {
+            set_title($('.page-header'), "ping");
+            $("td#"+id).each(function(i, obj) {
+                //TODO: bug here
+                obj.empty().append(category);
+            });
+            //TODO: if date == '', replace td of all transactions with same target as above
+        });
+    });
 }

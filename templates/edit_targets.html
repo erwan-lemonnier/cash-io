@@ -14,19 +14,28 @@
                   <th>From</th>
                 </tr>
               </thead>
-              <tbody class="table-content">
+              <tbody id="table-content">
                 {% for transaction in transactions %}
                 <tr>
-                  <td>
+                  <td id="{{transaction.uniqueid}}">
                     <button type="button" class="btn btn-sm btn-default">
                       <div class="dropdown">
-                        <a id="{{transaction.htmlid}}" href="#" data-toggle="dropdown" role="button">--------<span class="caret"></a>
+                        <a href="#" data-toggle="dropdown" role="button">--------<span class="caret"></a>
                         <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
                           <table class="table">
                             <tbody>
+                              <tr>
+                                <th>Always assign to:</th>
+                                <th>(This transaction only)</th>
+                              </tr>
                               {% for category in categories %}
                               <tr>
-                                <td><a onclick="assign_target_category('{{transaction.category}}', '{{category}}', '{{transaction.htmlid}}')" href="#">{{category}}</a></td>
+                                <td>
+                                  <a onclick="assign_target_category('{{transaction.category}}', '{{category}}', '{{transaction.uniqueid}}', '')" href="#">{{category}}</a>
+                                </td>
+                                <td>
+                                  <a onclick="assign_target_category('{{transaction.category}}', '{{category}}', '{{transaction.uniqueid}}', '{{transaction.date}}')" href="#">(This transaction only)</a>
+                                </td>
                               </tr>
                               {% endfor %}
                             </tbody>
