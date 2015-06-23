@@ -215,21 +215,30 @@ function load_many_years_transactions(years) {
 
 // Assign a given target to always be mapped to given transaction
 // If date is given, assign the target to that transaction on that date only
-function assign_target_category(cleantarget, category, id, date) {
-    if (date != '') {
-        cleantarget = date + ':' + cleantarget
-    }
-    $(document).ready(function() {
-        $.ajax({
-            type: 'POST',
-            url: 'http://127.0.0.1:8080/api/v0/categories/assign_target/' + cleantarget + '/' + category
-        }).then(function(data) {
-            set_title($('.page-header'), "ping");
-            $("td#"+id).each(function(i, obj) {
-                //TODO: bug here
-                obj.empty().append(category);
+function assign_target_category_always(target, id, date) {
+    var catSelect = document.getElementById("select-" + date + "-" + id);
+    var category = catSelect.options[catSelect.selectedIndex].value;
+    assign_target_category(target, category, date, id);
+    //TODO: replace form with category on all forms matching 'form-<yyyymmdd>-id'
+}
+
+function assign_target_category_on_date(target, id, date) {
+    var catSelect = document.getElementById("select-" + date + "-" + id);
+    var category = catSelect.options[catSelect.selectedIndex].value;
+    assign_target_category(date + ":" + target, category, date, id);
+}
+
+function assign_target_category(target, category, date, id) {
+    if (category == '--') {
+        alert("Please select a category!");
+    } else {
+        $(document).ready(function() {
+            $.ajax({
+                type: 'POST',
+                url: 'http://127.0.0.1:8080/api/v0/categories/assign_target/' + target + '/' + category
+            }).then(function(data) {
+                $("td#form-"+date+"-"+id).empty().append(category);
             });
-            //TODO: if date == '', replace td of all transactions with same target as above
         });
-    });
+    }
 }

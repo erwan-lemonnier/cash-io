@@ -3,51 +3,36 @@
 {% block content %}
         <script src="/static/cashio.js"></script>
         <div class="row">
-          <div class="col-md-6">
+          <div class="col-md-10">
             <table class="table">
               <thead>
                 <tr>
-                  <th>Category</th>
-                  <th>To</th>
-                  <th>Date</th>
-                  <th>Amount</th>
-                  <th>From</th>
+                  <th class="col-md-1">To</th>
+                  <th class="col-md-1">Date</th>
+                  <th class="col-md-1">Amount</th>
+                  <th class="col-md-1">From</th>
+                  <th class="col-md-6">Category</th>
                 </tr>
               </thead>
               <tbody id="table-content">
                 {% for transaction in transactions %}
-                <tr>
-                  <td id="{{transaction.uniqueid}}">
-                    <button type="button" class="btn btn-sm btn-default">
-                      <div class="dropdown">
-                        <a href="#" data-toggle="dropdown" role="button">--------<span class="caret"></a>
-                        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                          <table class="table">
-                            <tbody>
-                              <tr>
-                                <th>Always assign to:</th>
-                                <th>(This transaction only)</th>
-                              </tr>
-                              {% for category in categories %}
-                              <tr>
-                                <td>
-                                  <a onclick="assign_target_category('{{transaction.category}}', '{{category}}', '{{transaction.uniqueid}}', '')" href="#">{{category}}</a>
-                                </td>
-                                <td>
-                                  <a onclick="assign_target_category('{{transaction.category}}', '{{category}}', '{{transaction.uniqueid}}', '{{transaction.date}}')" href="#">(This transaction only)</a>
-                                </td>
-                              </tr>
-                              {% endfor %}
-                            </tbody>
-                          </table>
-                        </ul>
-                      </div>
-                    </button>
-                  </td>
                   <td>{{transaction.target}}</td>
                   <td>{{transaction.date}}</td>
                   <td>{{transaction.amount}}</td>
                   <td>{{transaction.owner}}</td>
+                  <td class="col-md-4" id="form-{{transaction.date}}-{{transaction.uniqueid}}">
+                    <form class="form-inline">
+                      sorts as
+                      <select class="form-control" id="select-{{transaction.date}}-{{transaction.uniqueid}}">
+                        <option value="--">--</option>
+                        {% for category in categories %}
+                        <option value="{{category}}">{{category}}</option>
+                        {% endfor %}
+                      </select>
+                      <button type="button" class="btn btn-default" onclick="assign_target_category_always('{{transaction.category}}', '{{transaction.uniqueid}}', '{{transaction.date}}')">Always</button>
+                      <button type="button" class="btn btn-default" onclick="assign_target_category_on_date('{{transaction.category}}', '{{transaction.uniqueid}}', '{{transaction.date}}')">On {{transaction.date}} only</button>
+                    </form>
+                  </td>
                 </tr>
                 {% endfor %}
               </tbody>
