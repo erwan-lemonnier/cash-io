@@ -183,6 +183,7 @@ def handle_yearly_transactions():
 def handle_edit_targets():
     categories = db.get_categories_names()
     transactions = db.get_transactions_with_unknown_targets()
+    # TODO: Order transactions by target, then by chronological order
     return render_template("edit_targets.html",
                            categories=categories,
                            transactions=transactions)

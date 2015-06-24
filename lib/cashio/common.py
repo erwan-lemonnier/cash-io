@@ -60,9 +60,12 @@ class Transaction():
         if 'ignore' in self.category.lower():
             self.ignore = True
 
-        #id = self.date + self.target
-        id = self.target
-        self.uniqueid = id.replace(' ', '_')
+        # targetid: an html-id friendly string uniquely representing a target
+        id = "target-" + self.target
+        self.targetid = id.replace(' ', '_')
+
+        # id: an html-id friendly string uniquely representing one transaction
+        self.id = '-'.join([str(x) for x in ("transaction", self.date, self.targetid, self.amount)])
 
     def to_json(self):
         return {

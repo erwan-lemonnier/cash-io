@@ -215,20 +215,9 @@ function load_many_years_transactions(years) {
 
 // Assign a given target to always be mapped to given transaction
 // If date is given, assign the target to that transaction on that date only
-function assign_target_category_always(target, id, date) {
-    var catSelect = document.getElementById("select-" + date + "-" + id);
+function assign_target_category(target, targetid, date, transactionid) {
+    var catSelect = document.getElementById("select-" + transactionid);
     var category = catSelect.options[catSelect.selectedIndex].value;
-    assign_target_category(target, category, date, id);
-    //TODO: replace form with category on all forms matching 'form-<yyyymmdd>-id'
-}
-
-function assign_target_category_on_date(target, id, date) {
-    var catSelect = document.getElementById("select-" + date + "-" + id);
-    var category = catSelect.options[catSelect.selectedIndex].value;
-    assign_target_category(date + ":" + target, category, date, id);
-}
-
-function assign_target_category(target, category, date, id) {
     if (category == '--') {
         alert("Please select a category!");
     } else {
@@ -237,8 +226,21 @@ function assign_target_category(target, category, date, id) {
                 type: 'POST',
                 url: 'http://127.0.0.1:8080/api/v0/categories/assign_target/' + target + '/' + category
             }).then(function(data) {
-                $("td#form-"+date+"-"+id).empty().append(category);
+                hide_category_selection_form(transactionid, category);
+                if (target.search(date) == -1) {
+                    hide_category_selection_form(targetid, category);
+                }
             });
         });
+    }
+}
+
+function hide_category_selection_form(id, category) {
+    var divs = document.getElementsByClassName(id);
+    for (var i=0; i<divs.length; i++) {
+        var div = divs[i];
+        div.removeChild(div.firstChild);
+        div.removeChild(div.firstChild);
+        div.appendChild(document.createTextNode(category));
     }
 }

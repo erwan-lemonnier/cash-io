@@ -20,18 +20,22 @@
                   <td>{{transaction.date}}</td>
                   <td>{{transaction.amount}}</td>
                   <td>{{transaction.owner}}</td>
-                  <td class="col-md-4" id="form-{{transaction.date}}-{{transaction.uniqueid}}">
-                    <form class="form-inline">
-                      sorts as
-                      <select class="form-control" id="select-{{transaction.date}}-{{transaction.uniqueid}}">
-                        <option value="--">--</option>
-                        {% for category in categories %}
-                        <option value="{{category}}">{{category}}</option>
-                        {% endfor %}
-                      </select>
-                      <button type="button" class="btn btn-default" onclick="assign_target_category_always('{{transaction.category}}', '{{transaction.uniqueid}}', '{{transaction.date}}')">Always</button>
-                      <button type="button" class="btn btn-default" onclick="assign_target_category_on_date('{{transaction.category}}', '{{transaction.uniqueid}}', '{{transaction.date}}')">On {{transaction.date}} only</button>
-                    </form>
+                  <td class="col-md-4">
+                    <div class="{{transaction.id}}">
+                      <div class="{{transaction.targetid}}">
+                        <form class="form-inline">
+                          sorts as
+                          <select class="form-control" id="select-{{transaction.id}}">
+                            <option value="--">--</option>
+                            {% for category in categories %}
+                            <option value="{{category}}">{{category}}</option>
+                            {% endfor %}
+                          </select>
+                          <button type="button" class="btn btn-default" onclick="assign_target_category('{{transaction.category}}', '{{transaction.targetid}}', '{{transaction.date}}', '{{transaction.id}}')">Always</button>
+                          <button type="button" class="btn btn-default" onclick="assign_target_category('{{transaction.date}}:{{transaction.category}}', '{{transaction.targetid}}', '{{transaction.date}}', '{{transaction.id}}')">On {{transaction.date}} only</button>
+                        </form>
+                      </div>
+                    </div>
                   </td>
                 </tr>
                 {% endfor %}

@@ -170,7 +170,7 @@ def get_transactions_with_unknown_targets():
     query = "SELECT t.date, t.amount, t.target, t.owner, t.rawdata, t.cleantarget " \
             "FROM transactions t " \
             "WHERE t.cleantarget NOT IN (SELECT DISTINCT cleantarget FROM categories) " \
-            "ORDER BY DATE DESC LIMIT 50"
+            "ORDER BY DATE DESC LIMIT 200"
 
     log.debug("Getting transactions with unknown categories")
     transactions = []
