@@ -31,8 +31,8 @@
                             <option value="{{category}}">{{category}}</option>
                             {% endfor %}
                           </select>
-                          <button type="button" class="btn btn-default" onclick="assign_target_category('{{transaction.category}}', '{{transaction.targetid}}', '{{transaction.date}}', '{{transaction.id}}')">Always</button>
-                          <button type="button" class="btn btn-default" onclick="assign_target_category('{{transaction.date}}:{{transaction.category}}', '{{transaction.targetid}}', '{{transaction.date}}', '{{transaction.id}}')">On {{transaction.date}} only</button>
+                          <button type="button" class="btn btn-default" onclick="assign_target_category('{{transaction.category}}', '{{transaction.targetid}}', '1', '{{transaction.id}}')">Always</button>
+                          <button type="button" class="btn btn-default" onclick="assign_target_category('{{transaction.category}}', '{{transaction.targetid}}', '0', '{{transaction.id}}')">For that transaction only</button>
                         </form>
                       </div>
                     </div>

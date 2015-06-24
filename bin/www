@@ -140,15 +140,14 @@ def handle_get_categories_names():
     return create_http_response({'categories': categories,
                                  'transactions': transactions}, 200)
 
-@app.route("/api/v0/categories/assign_target/<target>/<category>", methods=['POST'])
-def handle_assign_target_category(target, category):
-    """Assign a given target to always be mapped to given transaction
-    If date is given, assign the target to that transaction on that date only"""
-    if ':' in target:
-        date, target = target.split(':')
-        log.debug("assign '%s' to '%s' on %s only" % (target, category, date))
-    else:
+@app.route("/api/v0/categories/assign_target/<target>/<category>/<transactionid>", methods=['POST'])
+def handle_assign_target_category(target, category, transactionid):
+    """Assign a given target to always be mapped to given category if transactionid='all'
+    If the transactionid != 'all', assign target to transactionid for that transaction only."""
+    if transactionid == 'all':
         log.debug("assign '%s' to '%s'" % (target, category))
+    else:
+        log.debug("assign '%s' to '%s' only for '%s'" % (target, category, transactionid))
 
     return create_http_response("ok", 200)
 

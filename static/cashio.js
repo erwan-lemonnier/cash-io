@@ -215,19 +215,25 @@ function load_many_years_transactions(years) {
 
 // Assign a given target to always be mapped to given transaction
 // If date is given, assign the target to that transaction on that date only
-function assign_target_category(target, targetid, date, transactionid) {
+function assign_target_category(target, targetid, always, transactionid ) {
     var catSelect = document.getElementById("select-" + transactionid);
     var category = catSelect.options[catSelect.selectedIndex].value;
     if (category == '--') {
         alert("Please select a category!");
     } else {
+        var url = 'http://127.0.0.1:8080/api/v0/categories/assign_target/' + target + '/' + category;
+        if (always == '1') {
+            url = url + '/all';
+        } else {
+            url = url + '/' + transactionid;
+        }
         $(document).ready(function() {
             $.ajax({
                 type: 'POST',
-                url: 'http://127.0.0.1:8080/api/v0/categories/assign_target/' + target + '/' + category
+                url: url
             }).then(function(data) {
                 hide_category_selection_form(transactionid, category);
-                if (target.search(date) == -1) {
+                if (always == '1') {
                     hide_category_selection_form(targetid, category);
                 }
             });
