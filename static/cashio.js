@@ -216,7 +216,7 @@ function load_many_years_transactions(years) {
 // Assign a given target to always be mapped to given transaction
 // If date is given, assign the target to that transaction on that date only
 function assign_target_category(target, targetid, always, transactionid ) {
-    var catSelect = document.getElementById("select-transaction-" + transactionid);
+    var catSelect = document.getElementById("select-" + transactionid);
     var category = catSelect.options[catSelect.selectedIndex].value;
     if (category == '--') {
         alert("Please select a category!");
