@@ -59,15 +59,14 @@ class Transaction():
         if id:
             self.id = id
         else:
-            self.id = str(hash(self.raw))
+            self.id = "transaction-" + str(hash(self.raw))
 
         # Set the ignore flag
         if 'ignore' in self.category.lower():
             self.ignore = True
 
         # targetid: an html-id friendly string uniquely representing a target
-        id = "target-" + self.target
-        self.targetid = id.replace(' ', '_')
+        self.targetid = "target-" + str(hash(self.target))
 
     def to_json(self):
         return {

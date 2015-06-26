@@ -168,7 +168,7 @@ def get_transactions_with_unknown_targets():
     """Return a list of all transactions with unknown targets, grouped
     by targets and ordered by decreasing date"""
 
-    query = "SELECT t.date, t.amount, t.target, t.owner, t.rawdata, t.cleantarget, t.id " \
+    query = "SELECT t.date, t.amount, t.cleantarget, t.owner, t.rawdata, t.id " \
             "FROM transactions t " \
             "WHERE t.cleantarget NOT IN (SELECT DISTINCT cleantarget FROM categories) " \
             "ORDER BY DATE DESC LIMIT 200"
@@ -178,6 +178,28 @@ def get_transactions_with_unknown_targets():
     with get_cursor(True) as c:
         res = c.execute(query)
         for r in c.fetchall():
-            transactions.append(Transaction(r[0], r[1], r[2], r[3], r[4], r[5], r[6]))
+            transactions.append(Transaction(r[0], r[1], r[2], r[3], r[4], id=r[5]))
 
     return transactions
+
+def assign_target_to_category(cleantarget, category, transactionid=None):
+    """Assign target to that category for all transactions (if transactionid==None),
+    or for that transaction only (if transactionid specified)"""
+    if transactionid:
+        # TODO: implement
+        pass
+    else:
+        with get_cursor(True) as c:
+
+            c.execute("SELECT COUNT(*) FROM categories WHERE cleantarget=?", (cleantarget, ))
+            cnt, = c.fetchone()
+            assert int(cnt) in [0, 1]
+
+            if int(cnt) == 0:
+                log.debug("Inserting '%s'/'%s' into categories" % (cleantarget, category))
+                c.execute("INSERT INTO categories (cleantarget, category) VALUES (?, ?)",
+                          (cleantarget, category))
+            else:
+                log.debug("Changing '%s' to category '%s'" % (cleantarget, category))
+                c.execute("UPDATE categories SET category=? WHERE cleantarget=?",
+                          (category, cleantarget))
