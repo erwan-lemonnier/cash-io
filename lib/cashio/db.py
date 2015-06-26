@@ -185,21 +185,31 @@ def get_transactions_with_unknown_targets():
 def assign_target_to_category(cleantarget, category, transactionid=None):
     """Assign target to that category for all transactions (if transactionid==None),
     or for that transaction only (if transactionid specified)"""
-    if transactionid:
-        # TODO: implement
-        pass
+
+    with get_cursor(True) as c:
+        if transactionid:
+            # Set cleantarget to transactionid:cleantarget for this transaction,
+            # then assign transactionid:cleantarget to that category in categories
+            newcleantarget = "%s:%s" % (transactionid, cleantarget)
+
+            # TODO: make sure transactionid really is unique. Currently (using hash()), it is not...
+            log.debug("Assigning '%s' to category '%s' only for transaction '%s'" % (newcleantarget, category, transactionid))
+            c.execute("UPDATE transactions SET cleantarget=? WHERE id=?",
+                      (newcleantarget, transactionid))
+            _insert_or_update_category(c, newcleantarget, category)
+        else:
+            _insert_or_update_category(c, cleantarget, category)
+
+def _insert_or_update_category(c, cleantarget, category):
+    c.execute("SELECT COUNT(*) FROM categories WHERE cleantarget=?", (cleantarget, ))
+    cnt, = c.fetchone()
+    assert int(cnt) in [0, 1]
+
+    if int(cnt) == 0:
+        log.debug("Inserting '%s'/'%s' into categories" % (cleantarget, category))
+        c.execute("INSERT INTO categories (cleantarget, category) VALUES (?, ?)",
+                  (cleantarget, category))
     else:
-        with get_cursor(True) as c:
-
-            c.execute("SELECT COUNT(*) FROM categories WHERE cleantarget=?", (cleantarget, ))
-            cnt, = c.fetchone()
-            assert int(cnt) in [0, 1]
-
-            if int(cnt) == 0:
-                log.debug("Inserting '%s'/'%s' into categories" % (cleantarget, category))
-                c.execute("INSERT INTO categories (cleantarget, category) VALUES (?, ?)",
-                          (cleantarget, category))
-            else:
-                log.debug("Changing '%s' to category '%s'" % (cleantarget, category))
-                c.execute("UPDATE categories SET category=? WHERE cleantarget=?",
-                          (category, cleantarget))
+        log.debug("Changing '%s' to category '%s'" % (cleantarget, category))
+        c.execute("UPDATE categories SET category=? WHERE cleantarget=?",
+                  (category, cleantarget))
