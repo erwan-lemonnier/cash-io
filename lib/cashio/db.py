@@ -21,6 +21,7 @@ schema = [
 """
 CREATE TABLE     transactions (
     rawdata      CHAR(200) PRIMARY KEY,
+    id           CHAR(50) NOT NULL,
     owner        CHAR(20) NOT NULL,
     date         DATE NOT NULL,
     amount       NUMBER NOT NULL,
@@ -90,9 +91,9 @@ def add_transaction(t):
             # Should we substitute t.target with something more generic?
             # is there target_substitution.contains that is in t.target? if so set t.cleantarget to it
             # TODO: replace last t.target with t.cleantarget
-            c.execute("INSERT INTO transactions (rawdata, owner, date, amount, target, cleantarget) " \
-                      "VALUES (?, ?, ?, ?, ?, ?)",
-                      (t.raw, t.owner, t.date, t.amount, t.target, t.target))
+            c.execute("INSERT INTO transactions (rawdata, id, owner, date, amount, target, cleantarget) " \
+                      "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                      (t.raw, t.id, t.owner, t.date, t.amount, t.target, t.target))
 
 def add_target(cleantarget, category):
     """Add a row in the categories table"""
@@ -116,7 +117,7 @@ def delete_category(category):
         cnt = c.execute("DELETE FROM categories WHERE category=?", (category, ))
 
 def get_transactions(year, month=None):
-    query = "SELECT t.date, t.amount, t.target, t.owner, t.rawdata, c.category " \
+    query = "SELECT t.date, t.amount, t.target, t.owner, t.rawdata, c.category, t.id " \
             "FROM transactions t " \
             "LEFT JOIN categories c " \
             "ON t.cleantarget=c.cleantarget WHERE " \
@@ -137,7 +138,7 @@ def get_transactions(year, month=None):
     with get_cursor(True) as c:
         res = c.execute(query, (match, ))
         for r in c.fetchall():
-            transactions.append(Transaction(r[0], r[1], r[2], r[3], r[4], r[5]))
+            transactions.append(Transaction(r[0], r[1], r[2], r[3], r[4], r[5], r[6]))
 
     return transactions
 
@@ -167,7 +168,7 @@ def get_transactions_with_unknown_targets():
     """Return a list of all transactions with unknown targets, grouped
     by targets and ordered by decreasing date"""
 
-    query = "SELECT t.date, t.amount, t.target, t.owner, t.rawdata, t.cleantarget " \
+    query = "SELECT t.date, t.amount, t.target, t.owner, t.rawdata, t.cleantarget, t.id " \
             "FROM transactions t " \
             "WHERE t.cleantarget NOT IN (SELECT DISTINCT cleantarget FROM categories) " \
             "ORDER BY DATE DESC LIMIT 200"
@@ -177,6 +178,6 @@ def get_transactions_with_unknown_targets():
     with get_cursor(True) as c:
         res = c.execute(query)
         for r in c.fetchall():
-            transactions.append(Transaction(r[0], r[1], r[2], r[3], r[4], r[5]))
+            transactions.append(Transaction(r[0], r[1], r[2], r[3], r[4], r[5], r[6]))
 
     return transactions

@@ -40,7 +40,7 @@ def create_http_response(data, status_code=200, headers=None, redirect_url=None)
 
 class Transaction():
 
-    def __init__(self, date, amount, target, owner, raw, category=None):
+    def __init__(self, date, amount, target, owner, raw, category=None, id=None):
         self.date = date
         self.amount = float(amount)
         self.target = target
@@ -56,6 +56,11 @@ class Transaction():
         # Some normalization of the category name
         self.category = self.category.replace('_', ' ').replace('-', ' ')
 
+        if id:
+            self.id = id
+        else:
+            self.id = str(hash(self.raw))
+
         # Set the ignore flag
         if 'ignore' in self.category.lower():
             self.ignore = True
@@ -64,11 +69,9 @@ class Transaction():
         id = "target-" + self.target
         self.targetid = id.replace(' ', '_')
 
-        # id: an html-id friendly string uniquely representing one transaction
-        self.id = '-'.join([str(x) for x in ("transaction", self.date, self.targetid, self.amount)])
-
     def to_json(self):
         return {
+            'id': self.id,
             'date': self.date,
             'amount': self.amount,
             'target': self.target,
