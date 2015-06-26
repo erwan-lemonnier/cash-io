@@ -183,15 +183,20 @@ def handle_yearly_transactions():
     return render_template("yearly_report.html",
                            years=years)
 
-@app.route("/edit_targets", methods=["GET"])
-def handle_edit_targets():
+@app.route("/recipients", methods=["GET"])
+def handle_recipients():
     categories = db.get_categories_names()
     transactions = db.get_transactions_with_unknown_targets()
     # TODO: Order transactions by target, then by chronological order
-    return render_template("edit_targets.html",
+    return render_template("recipients.html",
                            categories=categories,
                            transactions=transactions)
 
+@app.route("/categories", methods=["GET"])
+def handle_categories():
+    categories = db.get_categories_names()
+    return render_template("categories.html",
+                           categories=categories)
 
 
 #

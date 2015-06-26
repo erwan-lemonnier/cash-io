@@ -25,10 +25,15 @@
           </div>
           <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-              <li><a href="/monthly_report">Monthly Report</a></li>
-              <li><a href="/yearly_report">Yearly Report</a></li>
-              <li><a href="/edit_targets">Edit Targets</a></li>
-              <li><a href="/jquery/">jquery lab</a></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">Reports<span class="caret"></span></a>
+                <ul class="dropdown-menu" role="menu">
+                  <li><a href="/monthly_report">Monthly Report</a></li>
+                  <li><a href="/yearly_report">Yearly Report</a></li>
+                </ul>
+              </li>
+              <li><a href="/recipients">Edit Recipients</a></li>
+              <li><a href="/categories">Edit Categories</a></li>
               <li class="dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="true">DB<span class="caret"></span></a>
                 <ul class="dropdown-menu" role="menu">
