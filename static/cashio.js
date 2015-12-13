@@ -45,14 +45,16 @@ function show_sum_by_category_chart(context, sum_by_category) {
 function show_balance_chart(elem_name, total_earned, total_spent) {
 
     var data = new google.visualization.DataTable();
+    earned = Math.floor(Math.abs(total_earned))/1000;
+    spent = Math.floor(Math.abs(total_spent))/1000;
     data.addColumn('string', 'Type');
     data.addColumn('number', 'Amount');
     data.addRows([
-        ['Earned', Math.abs(total_earned)],
-        ['Spent', Math.abs(total_spent)],
+        ['Earned', earned],
+        ['Spent', spent],
     ]);
 
-    var options = {'title':'Earned/Spent'};
+    var options = {'title':"Earned "+earned+":- / Spent "+spent+":-"};
     var chart = new google.visualization.PieChart(document.getElementById(elem_name));
     chart.draw(data, options);
 }
