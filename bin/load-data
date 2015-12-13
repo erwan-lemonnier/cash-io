@@ -17,7 +17,7 @@ from cashio.common import setup_logging
 log = None
 
 www = "http://127.0.0.1:8080/api/v0"
-batch_size = 2000
+batch_size = 200
 
 path_etc = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'etc')
 
@@ -42,6 +42,7 @@ def normalize_weird_chars(s):
     s = s.replace('\xe5', 'a')
     s = s.replace('\xe9', 'e')
     s = s.replace('\xf6', 'o')
+    s = s.replace('\xc9', 'e')
     return s
 
 def normalize_target(s):
